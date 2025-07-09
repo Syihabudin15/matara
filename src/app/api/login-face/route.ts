@@ -1,5 +1,5 @@
 // === app/api/login-face/route.js ===
-import { readFile } from "fs/promises";
+import fs from "fs/promises";
 import { NextRequest } from "next/server";
 import path from "path";
 
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   const filePath = path.resolve("./data/faces.json");
 
   try {
-    const data = await readFile(filePath, "utf-8");
+    const data = await fs.readFile("data/faces.json", "utf-8");
     const faces = JSON.parse(data);
 
     for (const face of faces) {
