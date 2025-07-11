@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import { Button, Modal } from "antd";
-import FaceRecognition from "@/components/modals/FaceRegocnition";
+import FaceCapture from "@/components/modals/FaceCapture";
 
 export default function Home() {
   const [open, setOpen] = useState(false);
@@ -19,7 +19,7 @@ export default function Home() {
       <div>HOME</div>
       <Button onClick={() => setOpen(true)}>Login</Button>
       <Modal open={open} title="Pengenalan Wajah">
-        <FaceRecognition />
+        <FaceCapture mode="register" />
       </Modal>
     </div>
   );
