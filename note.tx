@@ -1,0 +1,24 @@
+Fungsi Untuk Cek Kemiripan Data
+const euclideanDistance = (d1: number[], d2: number[]): number => {
+  return Math.sqrt(d1.reduce((acc, val, i) => acc + (val - d2[i]) ** 2, 0));
+};
+const distance = euclideanDistance(saved.descriptor, descriptor);
+
+Check Kemiripan Data
+if (distance < 0.6) {
+  res.status(200).json({ message: 'Login Berhasil ✅' });
+} else {
+  res.status(401).json({ message: 'Wajah tidak cocok ❌' });
+}
+
+Check Foreach User
+for (const user of users) {
+      const distance = euclideanDistance(user.descriptor, descriptor);
+      if (distance < 0.6) {
+        return res.status(200).json({
+          message: 'Login Berhasil ✅',
+          userId: user.userId,
+          distance: distance.toFixed(4),
+        });
+      }
+    }

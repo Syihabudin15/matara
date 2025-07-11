@@ -1,0 +1,45 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Devices {
+  id         String   @id @default(uuid())
+  deviceId   String   @unique
+  deviceName String
+  deviceType String
+  sistem     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+  Users      Users[]
+}
+
+model Users {
+  id       String @id @default(uuid())
+  fullname String
+  email    String
+  address  String @db.Text
+  phone    String
+  nik      String @unique
+  nip      String @unique
+  position String
+  menu     String @db.Text
+  face     String @db.Text
+  image    String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  deviceId  Devices  @relation(fields: [devicesId], references: [id])
+  devicesId String
+}

@@ -9,12 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.6.1",
     "@ant-design/nextjs-registry": "^1.0.2",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@fingerprintjs/fingerprintjs": "^4.6.2",
+    "@prisma/client": "^6.11.1",
+    "@tensorflow/tfjs": "3.21.0",
     "antd": "^5.26.3",
     "face-api.js": "^0.22.2",
     "next": "15.3.5",
+    "prisma": "^6.11.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

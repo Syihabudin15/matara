@@ -1,12 +1,16 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
+import { Modal } from "antd";
 
-interface FaceCaptureProps {
-  mode: "register" | "login";
-}
-
-const FaceCapture: React.FC<FaceCaptureProps> = ({ mode }) => {
+export default function FaceCapture({
+  mode,
+  deviceId,
+}: {
+  mode: "login" | "register";
+  deviceId: string | null;
+}) {
+  const [open, setOpen] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [status, setStatus] = useState("Memuat model...");
 
@@ -48,8 +52,8 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({ mode }) => {
       setStatus("Wajah tidak terdeteksi.");
       return;
     }
-    const descriptor = Array.from(detection.descriptor);
-    console.log({ descriptor, detection });
+    // const descriptor = Array.from(detection.descriptor);
+    // console.log({ descriptor, detection });
     // const endpoint = mode === "register" ? "/api/face/save" : "/api/face/login";
 
     // const response = await fetch(endpoint, {
@@ -59,18 +63,23 @@ const FaceCapture: React.FC<FaceCaptureProps> = ({ mode }) => {
     // });
 
     // const result = await response.json();
-    setStatus("WajahTerdeteksi");
+    setStatus("WajahTer deteksi");
   };
 
   return (
-    <div>
-      <video ref={videoRef} autoPlay muted width={320} height={240} />
-      <button onClick={captureFace}>
-        {mode === "register" ? "Daftarkan Wajah" : "Login dengan Wajah"}
-      </button>
-      <p>{status}</p>
-    </div>
+    <Modal
+      open={open}
+      footer={[]}
+      title="Verifikasi Wajah"
+      onCancel={() => setOpen(false)}
+    >
+      <div>
+        <video ref={videoRef} autoPlay muted width={500} height={360} />
+        <button onClick={captureFace}>
+          {mode === "register" ? "Daftarkan Wajah" : "Login dengan Wajah"}
+        </button>
+        <p>{status}</p>
+      </div>
+    </Modal>
   );
-};
-
-export default FaceCapture;
+}
