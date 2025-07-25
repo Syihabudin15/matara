@@ -1,14 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { IUser } from "../IInterface";
 
 const userContext = createContext<IUser | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser>();
-  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -27,15 +25,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               lat: 0,
               lng: 0,
             });
-          } else {
-            router.push("/");
           }
         })
         .catch((err) => console.log(err));
     })();
   }, []);
   useEffect(() => {
-    if (!("geolocation" in navigator)) {
+    if (!("geolocation" in navigator) || typeof window === "undefined") {
       alert("Geolocation is not available");
       return;
     }

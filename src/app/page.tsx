@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  LoadingOutlined,
   LoginOutlined,
   SecurityScanOutlined,
   UserOutlined,
@@ -8,16 +9,18 @@ import {
 import { AuthType, Users } from "@prisma/client";
 import { Button, Form, Input } from "antd";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import FaceCapture from "@/components/modals/FaceCapture";
+import dynamic from "next/dynamic";
+const FaceCapture = dynamic(() => import("@/components/modals/FaceCapture"), {
+  ssr: false,
+  loading: () => <LoadingOutlined />,
+});
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const [openFace, setOpenFace] = useState(false);
   const [err, setErr] = useState<string>();
-  const router = useRouter();
   const [user, setUser] = useState<Users | undefined>();
 
   const handleSubmit = async (e: { username: string; password: string }) => {
@@ -38,8 +41,7 @@ export default function Login() {
           setOpenFace(true);
           setUser(res.data);
         } else {
-          router.push("/dashboard");
-          window.location.reload();
+          window && window.location.replace("/dashboard");
         }
       })
       .catch((err) => {
@@ -48,11 +50,11 @@ export default function Login() {
     setLoading(false);
   };
 
-  const handleScanFace = async (descriptor: number[]) => {
+  const handleScanFace = async (descriptor: any) => {
     if (!user) return;
     setLoading(true);
     await fetch("/api/auth", {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-type": "Application/json" },
       body: JSON.stringify({ userId: user.id, descriptor: descriptor }),
     })
@@ -60,10 +62,10 @@ export default function Login() {
       .then((res) => {
         if (res.status !== 200) {
           setLoading(false);
+          setOpenFace(true);
           return setErr(err);
         } else {
-          router.push("/dashboard");
-          window.location.reload();
+          window && window.location.replace("/dashboard");
         }
       })
       .catch((err) => {
@@ -79,12 +81,13 @@ export default function Login() {
         .then((res) => res.json())
         .then((res) => {
           if (res.status === 200) {
-            router.push("/dashboard");
+            window && window.location.replace("/dashboard");
           }
+          return;
         })
         .catch((err) => {
           console.log(err);
-          alert("Error");
+          alert("Error Login Page");
         });
     })();
   }, []);
@@ -130,10 +133,7 @@ export default function Login() {
         </div>
       </div>
       {openFace && (
-        <FaceCapture
-          mode="login"
-          setFace={(e: number[]) => handleScanFace(e)}
-        />
+        <FaceCapture mode="login" setFace={(e: any) => handleScanFace(e)} />
       )}
     </div>
   );

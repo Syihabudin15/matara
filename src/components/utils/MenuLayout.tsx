@@ -28,8 +28,7 @@ export const MenuLayout = () => {
         if (res.status === 200) {
           setOpen(false);
           setModalLogout(false);
-          router.push("/");
-          window.location.reload();
+          window && window.location.replace("/");
         } else {
           alert(res.msg);
         }
@@ -49,7 +48,7 @@ export const MenuLayout = () => {
       <Drawer
         open={open}
         onClose={() => setOpen(false)}
-        width={window.innerWidth > 600 ? "30vw" : "60vw"}
+        width={window.innerWidth > 600 ? "30vw" : "80vw"}
         title="MAIN MENU"
       >
         {user && <UserBio user={user} />}

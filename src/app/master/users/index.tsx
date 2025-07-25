@@ -1,11 +1,9 @@
 "use client";
-import { IInputList } from "@/components/IInterface";
-import FaceCapture from "@/components/modals/FaceCapture";
 import { FormInput, FormOption } from "@/components/utils/FormUtils";
-// import FaceCapture from "@/components/modals/FaceCapture";
 import {
   DeleteFilled,
   FormOutlined,
+  LoadingOutlined,
   PlusCircleFilled,
   SaveFilled,
 } from "@ant-design/icons";
@@ -20,8 +18,13 @@ import {
   Typography,
 } from "antd";
 import moment from "moment";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 const { Paragraph } = Typography;
+const FaceCapture = dynamic(() => import("@/components/modals/FaceCapture"), {
+  ssr: false,
+  loading: () => <LoadingOutlined />,
+});
 
 export const UserTable = () => {
   const [loading, setLoading] = useState(false);
@@ -601,7 +604,7 @@ const PersonalData = ({
 }) => {
   return (
     <div className="my-5 flex gap-5 flex-col sm:flex-row flex-wrap justify-between">
-      <div className="w-[45%]">
+      <div className="w-full sm:w-[45%]">
         <FormInput
           label={"Nama Lengkap"}
           onChange={(e: any) =>
@@ -662,7 +665,7 @@ const PersonalData = ({
           required
         />
       </div>
-      <div className="w-[45%]">
+      <div className="w-full sm:w-[45%]">
         <FormInput
           label={"Username"}
           onChange={(e: any) =>

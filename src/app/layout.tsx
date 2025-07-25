@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Layout from "@/components/Layouts";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { App } from "antd";
 
 const jetBrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
@@ -21,7 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jetBrainsMono.variable} antialiased`}>
-        <Layout>{children}</Layout>
+        <App>
+          <AntdRegistry>
+            <Layout>{children}</Layout>
+          </AntdRegistry>
+        </App>
       </body>
     </html>
   );

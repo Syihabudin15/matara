@@ -42,7 +42,7 @@ export default function FaceCapture({
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-        intervalRef.current = window.setInterval(detectFace, 500); // deteksi tiap 500ms
+        intervalRef.current = window.setInterval(detectFace, 1000); // deteksi tiap 500ms
       })
       .catch((err) => setStatus("Tidak bisa akses kamera: " + err));
   };
@@ -81,34 +81,12 @@ export default function FaceCapture({
       const descriptor = Array.from(detection.descriptor);
       setLoading(true);
       setStatus("Wajah terdeteksi");
-      stopVideo();
-      setFace(descriptor);
+      setFace(() => {
+        stopVideo();
+        return JSON.stringify(descriptor);
+      });
       setOpen(false);
       setLoading(false);
-      // const endpoint = mode === "register" ? "/api/face/save" : "/api/auth";
-      // if (mode === "login") {
-      //   // const response = await fetch(endpoint, {
-      //   //   method: "PUT",
-      //   //   headers: { "Content-Type": "application/json" },
-      //   //   body: JSON.stringify({ descriptor }),
-      //   // });
-
-      //   // const result = await response.json();
-      //   // if (result.status === 200) {
-      //   //   stopVideo();
-      //   //   setStatus(`Wajah Dikenali ${result.data.fullname}`);
-      //   //   setOpen(false);
-      //   //   setFace();
-      //   // } else {
-      //   //   setStatus("Wajah Tidak Dikenali!");
-      //   //   setLoading(false);
-      //   //   startVideo();
-      //   // }
-      // } else {
-      //   setFace(descriptor);
-      //   stopVideo();
-      //   setOpen(false);
-      // }
     } else {
       setStatus("Wajah tidak terdeteksi");
     }

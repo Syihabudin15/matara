@@ -71,7 +71,7 @@ export const DeviceTable = () => {
       dataIndex: "deviceName",
       key: "deviceName",
       className: "text-xs",
-      width: 200,
+      width: 150,
       onHeaderCell: () => {
         return {
           ["style"]: {
@@ -125,7 +125,7 @@ export const DeviceTable = () => {
       dataIndex: "browser",
       key: "browser",
       className: "text-xs",
-      width: 100,
+      width: 200,
       onHeaderCell: () => {
         return {
           ["style"]: {

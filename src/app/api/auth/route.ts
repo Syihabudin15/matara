@@ -89,11 +89,17 @@ export const POST = async (req: NextRequest) => {
     const find = await prisma.users.findFirst({
       where: { username: data.username },
     });
-    const verify = await bcrypt.compare(
-      data.password,
-      find ? find.password : ""
-    );
-    if (!find || !verify) {
+    if (!find)
+      return NextResponse.json(
+        {
+          data: null,
+          status: 404,
+          msg: "Username atau Password salah",
+        },
+        { status: 404 }
+      );
+    const verify = await bcrypt.compare(data.password, find.password);
+    if (!verify) {
       return NextResponse.json(
         {
           data: null,
