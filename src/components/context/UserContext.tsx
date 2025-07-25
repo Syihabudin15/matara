@@ -25,21 +25,25 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               lat: 0,
               lng: 0,
             });
+            return;
           }
         })
         .catch((err) => console.log(err));
     })();
   }, []);
+
   useEffect(() => {
     if (!("geolocation" in navigator) || typeof window === "undefined") {
       alert("Geolocation is not available");
       return;
     }
+    let locStatus = "REAL";
 
     const successCallback = (position: GeolocationPosition) => {
-      const { latitude, longitude } = position.coords;
+      const { latitude, longitude, accuracy } = position.coords;
       if (user) {
         setUser({ ...user, lat: latitude, lng: longitude });
+        locStatus = accuracy > 100 ? "FAKE" : "REAL";
       }
     };
 
@@ -51,9 +55,44 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
       successCallback,
       errorCallback
     );
+    // Interval to call API every 10 seconds
+    const intervalId = setInterval(() => {
+      if (user && user.lat && user.lng) {
+        // Ganti URL dan payload sesuai kebutuhanmu
+        (async () => {
+          let location = "";
+          await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${user.lat}&lon=${user.lng}`
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              location = data.display_name;
+            })
+            .catch((err) => console.error(err));
+
+          await fetch("/api/track", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: user.id,
+              coord: `${user.lat},${user.lng}`,
+              location: `${location} | ${locStatus}`,
+            }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log("Location sent to API:", data.data);
+            })
+            .catch((err) => console.error("Failed to send location:", err));
+        })();
+      }
+    }, 5000); // 5 detik
 
     // optional: stop tracking on unmount
-    return () => navigator.geolocation.clearWatch(watcher);
+    return () => {
+      navigator.geolocation.clearWatch(watcher);
+      clearInterval(intervalId);
+    };
   }, [user]);
   return (
     <userContext.Provider value={user as IUser}>

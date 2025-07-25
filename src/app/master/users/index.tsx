@@ -21,7 +21,8 @@ import moment from "moment";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 const { Paragraph } = Typography;
-const FaceCapture = dynamic(() => import("@/components/modals/FaceCapture"), {
+
+const FaceScanner = dynamic(() => import("@/components/modals/FaceScanner"), {
   ssr: false,
   loading: () => <LoadingOutlined />,
 });
@@ -175,7 +176,7 @@ export const UserTable = () => {
       dataIndex: "address",
       key: "address",
       className: "text-xs",
-      width: 150,
+      width: 200,
       onHeaderCell: () => {
         return {
           ["style"]: {
@@ -727,11 +728,13 @@ const PersonalData = ({
             { label: "FACE", value: "FACE" },
           ]}
         />
-        {data.authType === "FACE" && (
-          <FaceCapture
-            mode="register"
+        {data && (
+          <FaceScanner
+            user={data}
+            isOpen={false}
+            mode="Register"
             setFace={(e: any) =>
-              setData((prev: Users) => ({ ...prev, face: e }))
+              setData((prev: Users) => ({ ...prev, face: JSON.stringify(e) }))
             }
           />
         )}
@@ -759,6 +762,8 @@ const defaultUser: Users = {
   sumdanId: null,
   menu: null,
   authType: AuthType.CREDENTIAL,
+  coord: null,
+  location: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };

@@ -2,6 +2,7 @@
 
 import {
   CalculatorOutlined,
+  DashboardOutlined,
   DatabaseOutlined,
   LogoutOutlined,
   MenuOutlined,
@@ -41,7 +42,7 @@ export const MenuLayout = () => {
   };
 
   return (
-    <div className={`${!user && "hidden"}`}>
+    <div className={`${!user ? "hidden" : "block"}`}>
       <Button onClick={() => setOpen(true)} className="shadow">
         <MenuOutlined />
       </Button>
@@ -55,6 +56,11 @@ export const MenuLayout = () => {
         <Menu
           mode="inline"
           items={[
+            {
+              label: "Dashboard",
+              key: "/dashboard",
+              icon: <DashboardOutlined />,
+            },
             {
               label: "Simulasi Kredit",
               key: "/simulasi",
@@ -111,11 +117,10 @@ const UserBio = ({ user }: { user: IUser }) => {
   return (
     <div className="bg-gradient-to-br from-purple-500 to-blue-400 p-2 rounded shadow text-gray-50">
       <div>
-        <p className="font-bold">{user.fullname.toUpperCase()}</p>
-        <div className="flex gap-2 items-center">
-          <p className="font-bold italic text-xs">{user.role}</p>|
-          <p>{user.position}</p>
+        <div className="flex gap-2 items-center font-bold text-xs opacity-70">
+          <p>{user.role}</p>|<p>{user.position}</p>
         </div>
+        <p className="font-bold">{user.fullname.toUpperCase()}</p>
       </div>
       <div className="flex flex-row gap-2 text-xs italic mt-2 opacity-70">
         <p>Lat: {user.lat}</p>|<p>Lng: {user.lng}</p>

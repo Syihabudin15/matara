@@ -185,6 +185,8 @@ export const PUT = async (req: NextRequest) => {
         status: data.status ? data.status : find.status,
         menu: data.menu ? data.menu : find.menu,
         authType: data.authType ? data.authType : find.authType,
+        coord: data.coord ? data.coord : find.coord,
+        location: data.location ? data.location : find.location,
         sumdanId: data.sumdanId ? data.sumdanId : find.sumdanId,
         updatedAt: new Date(),
       },

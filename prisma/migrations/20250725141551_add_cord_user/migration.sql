@@ -1,0 +1,76 @@
+-- AlterTable
+ALTER TABLE `pengajuan` ADD COLUMN `flaggingId` INTEGER NULL;
+
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `coord` VARCHAR(191) NULL,
+    ADD COLUMN `location` TEXT NULL;
+
+-- CreateTable
+CREATE TABLE `flagging` (
+    `id` INTEGER NOT NULL,
+    `status_peserta` VARCHAR(191) NULL,
+    `notas` VARCHAR(191) NULL,
+    `kantor_cabang` VARCHAR(191) NULL,
+    `alamat_cabang` VARCHAR(191) NULL,
+    `nipnrp` VARCHAR(191) NULL,
+    `nama_penerima` VARCHAR(191) NULL,
+    `jandadudaypdari` VARCHAR(191) NULL,
+    `alamatrumah` VARCHAR(191) NULL,
+    `penerbitskep` VARCHAR(191) NULL,
+    `noskep` VARCHAR(191) NULL,
+    `jnsdapem` VARCHAR(191) NULL,
+    `jnspens` VARCHAR(191) NULL,
+    `ktrbaydapem` VARCHAR(191) NULL,
+    `norek` VARCHAR(191) NULL,
+    `stsdapem` VARCHAR(191) NULL,
+    `tgllahir_penerima` VARCHAR(191) NULL,
+    `tgllahir_jandadudayp` VARCHAR(191) NULL,
+    `nodosir` VARCHAR(191) NULL,
+    `tglskep` VARCHAR(191) NULL,
+    `tmtpens` VARCHAR(191) NULL,
+    `nudapem` VARCHAR(191) NULL,
+    `kdjiwa` INTEGER NULL,
+    `tmt_stop` VARCHAR(191) NULL,
+    `kdknsdapem` VARCHAR(191) NULL,
+    `kdjnspens` VARCHAR(191) NULL,
+    `kdktrbyrdapem` VARCHAR(191) NULL,
+    `blthrincian` VARCHAR(191) NULL,
+    `penpok` VARCHAR(191) NULL,
+    `tistri` VARCHAR(191) NULL,
+    `tanak` VARCHAR(191) NULL,
+    `tpp` VARCHAR(191) NULL,
+    `tpmtp` VARCHAR(191) NULL,
+    `tkd` VARCHAR(191) NULL,
+    `tdahor` VARCHAR(191) NULL,
+    `tberas` VARCHAR(191) NULL,
+    `tpph21` VARCHAR(191) NULL,
+    `tcacat` VARCHAR(191) NULL,
+    `pembulatan` VARCHAR(191) NULL,
+    `jmlkotor` VARCHAR(191) NULL,
+    `potpph21` VARCHAR(191) NULL,
+    `potaskes` VARCHAR(191) NULL,
+    `potassos` VARCHAR(191) NULL,
+    `potkasda` VARCHAR(191) NULL,
+    `potkpkn` VARCHAR(191) NULL,
+    `potalimentasi` VARCHAR(191) NULL,
+    `potsewarumah` VARCHAR(191) NULL,
+    `potgantirugi` VARCHAR(191) NULL,
+    `jmlpotongan` VARCHAR(191) NULL,
+    `jmltotal` VARCHAR(191) NULL,
+    `kpkn` VARCHAR(191) NULL,
+    `spn` VARCHAR(191) NULL,
+    `tgl_surat` VARCHAR(191) NULL,
+    `tgl_sekarang` VARCHAR(191) NULL,
+    `keluarga` TEXT NULL,
+    `jenishutang` VARCHAR(191) NULL,
+    `jumlah_hutang` VARCHAR(191) NULL,
+    `cicilan` VARCHAR(191) NULL,
+    `awal_flagging` VARCHAR(191) NULL,
+    `akhir_flagging` VARCHAR(191) NULL,
+    `mitra_flagging` VARCHAR(191) NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `Pengajuan` ADD CONSTRAINT `Pengajuan_flaggingId_fkey` FOREIGN KEY (`flaggingId`) REFERENCES `flagging`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;

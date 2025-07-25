@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@/components/context/UserContext";
-import { IProduk, ISimulasi } from "@/components/IInterface";
+import { IProduk, ISimulasi, IUser } from "@/components/IInterface";
 import {
   FormBiaya,
   FormInput,
@@ -23,7 +23,14 @@ import {
   SaveFilled,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Jenis, JenisMargin, SumdanType } from "@prisma/client";
+import {
+  DetailPengajuan,
+  Jenis,
+  JenisMargin,
+  Pengajuan,
+  StatusPengajuan,
+  SumdanType,
+} from "@prisma/client";
 import { data } from "@tensorflow/tfjs";
 import { Button, Input, Modal } from "antd";
 import moment from "moment";
@@ -172,9 +179,9 @@ export const CreateSimulation = ({ mode }: { mode: "Simulasi" | "Input" }) => {
       </div>
       <div className="flex-1">
         <Pembiayaan data={data} setData={setData} />
-        {mode === "Simulasi" && (
+        {mode === "Simulasi" && user && (
           <div className="flex justify-end gap-2 items-center mt-4">
-            <ModalSimulasi data={data} setData={setData} />
+            <ModalSimulasi data={data} setData={setData} user={user} />
           </div>
         )}
       </div>
@@ -193,6 +200,29 @@ const DataDebitur = ({
   produks: IProduk[];
   jeniss: Jenis[];
 }) => {
+  const handleSearch = async (e: string) => {
+    if (!e) return;
+    await fetch(`/api/flagging/find?nopen=${e}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.status === 200) {
+          console.log(res);
+          setData((prev: ISimulasi) => ({
+            ...prev,
+            flaggingId: res.data.id,
+            fullname: res.data.nama_penerima,
+            DetailPengajuan: {
+              ...prev.DetailPengajuan,
+              oldSalary: IDRToNumber(res.data.jmltotal || "0"),
+            },
+          }));
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div>
       {/* SPACE */}
@@ -220,7 +250,7 @@ const DataDebitur = ({
             }
             size="small"
             suffix={
-              <Button size="small">
+              <Button size="small" onClick={() => handleSearch(data.nopen)}>
                 <SearchOutlined />
               </Button>
             }
@@ -546,9 +576,6 @@ export const Pembiayaan = ({
   data: ISimulasi;
   setData: Function;
 }) => {
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
   return (
     <div className="border-gray-300 pb-4">
       <div className="text-center font-bold border bg-red-500 text-gray-100 p-2 rounded">
@@ -791,9 +818,11 @@ export const Pembiayaan = ({
 export const ModalSimulasi = ({
   data,
   setData,
+  user,
 }: {
   data: ISimulasi;
   setData: Function;
+  user: IUser;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -826,7 +855,7 @@ export const ModalSimulasi = ({
             className="flex justify-end gap-2"
           >
             <Button onClick={() => setOpen(false)}>Close</Button>
-            <SaveModal data={data} />
+            <SaveModal data={data} setData={setData} user={user} />
           </div>,
         ]}
         title={
@@ -968,7 +997,9 @@ export const ModalSimulasi = ({
               />
               <ItemModalSimulation
                 label="Blokir Angsuran"
-                leftValue={data.DetailPengajuan.blokir}
+                leftValue={`${IDRFormat(data.DetailPengajuan.installment)} x ${
+                  data.DetailPengajuan.blokir
+                }`}
                 rightValue={IDRFormat(
                   data.DetailPengajuan.blokir * data.DetailPengajuan.installment
                 )}
@@ -1075,9 +1106,33 @@ export const ModalSimulasi = ({
   );
 };
 
-const SaveModal = ({ data }: { data: ISimulasi }) => {
+interface IPengajuan extends Pengajuan {
+  DetailPengajuan: DetailPengajuan;
+}
+
+const SaveModal = ({
+  data,
+  setData,
+  user,
+}: {
+  data: ISimulasi;
+  setData: Function;
+  user: IUser;
+}) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const statusStatus = [
+    {
+      label: "SIMPAN",
+      desc: "Data disimpan pada menu simulasi, tidak langsung ke Verifikasi",
+      value: StatusPengajuan.SIMULASI,
+    },
+    {
+      label: "PENDING",
+      desc: "Data diajukan ke verifikasi, tapi status masih di MOC (Perlengkapan Berkas)",
+      value: StatusPengajuan.PENDING,
+    },
+  ];
 
   return (
     <div>
@@ -1087,16 +1142,113 @@ const SaveModal = ({ data }: { data: ISimulasi }) => {
         icon={<SaveFilled />}
         onClick={() => setOpen(true)}
         disabled={!data.nopen || !data.fullname || !data.DetailPengajuan.plafon}
+        loading={loading}
       >
         Simpan
       </Button>
       <Modal
         open={open}
-        title="Simpan Simulasi"
+        title="SIMPAN SIMULASI"
         onCancel={() => setOpen(false)}
-        footer={[]}
+        footer={[
+          <Button
+            key={"cancelSimulation"}
+            danger
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>,
+          <Button
+            key={"saveSimulation"}
+            type="primary"
+            onClick={() => console.log(data)}
+          >
+            Simpan
+          </Button>,
+        ]}
+        loading={loading}
       >
-        <p>Save</p>
+        <div className="my-2">
+          <FormInput
+            type="string"
+            label="Nama Pemohon"
+            mode="horizontal"
+            defaultValue={data.fullname}
+            onChange={(e: any) => {}}
+            size="small"
+            disabled={true}
+            required
+          />
+          <FormInput
+            type="string"
+            label="Nopen Pemohon"
+            mode="horizontal"
+            defaultValue={data.nopen}
+            onChange={(e: any) => {}}
+            size="small"
+            disabled={true}
+            required
+          />
+          <FormOption
+            type="string"
+            label="Status"
+            mode="horizontal"
+            defaultValue={data.status}
+            options={statusStatus.map((s) => ({
+              label: s.label,
+              value: s.value,
+            }))}
+            onChange={(e: any) =>
+              setData((prev: ISimulasi) => ({ ...prev, status: e }))
+            }
+            size="small"
+            disabled={true}
+            required
+          />
+          <FormInput
+            type="string"
+            label="Keterangan"
+            defaultValue={""}
+            mode="horizontal"
+            onChange={(e: any) => {}}
+            size="small"
+            required
+          />
+          <FormInput
+            type="string"
+            label="Pembuat"
+            mode="horizontal"
+            defaultValue={user.fullname}
+            onChange={(e: any) => {}}
+            size="small"
+            disabled
+            required
+          />
+          <FormInput
+            type="string"
+            label="Coordinates"
+            mode="horizontal"
+            defaultValue={`${user.lat},${user.lng}`}
+            onChange={(e: any) => {}}
+            size="small"
+            disabled
+            required
+          />
+        </div>
+        <div className="border border-green-500 p-1 rounded">
+          <p className="font-bold text-green-500">INFO :</p>
+          <ul className="text-xs italic">
+            {statusStatus.map((s) => (
+              <li
+                className="flex gap-1 border-b border-gray-200 items-center"
+                key={s.value}
+              >
+                <p className="w-24 font-bold text-blue-500">{s.label}</p>
+                <p>{s.desc}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </Modal>
     </div>
   );
@@ -1128,6 +1280,7 @@ const defaultSimulation: ISimulasi = {
   usersId: "",
   maxTenor: 0,
   maxPlafon: 0,
+  flaggingId: null,
   DetailPengajuan: {
     id: "",
     birthdate: new Date(),

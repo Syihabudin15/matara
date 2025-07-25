@@ -157,6 +157,13 @@ export const GET = async (req: NextRequest) => {
     const user = await prisma.users.findFirst({
       where: { id: result.user.id },
     });
+    if (!user) {
+      await signOut();
+      return NextResponse.json(
+        { msg: "Unauthorize", status: 401 },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { msg: "Success", status: 200, data: user },
       { status: 200 }

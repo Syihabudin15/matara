@@ -39,8 +39,8 @@ enum SumdanType {
 
 enum StatusPengajuan {
   SIMULASI
-  PROCCESS
   PENDING
+  PROCCESS
   APPROVED
   REJECTED
   TRANSFERED
@@ -81,6 +81,8 @@ model Users {
   status   Boolean  @default(true)
   role     Role     @default(MOC)
   authType AuthType @default(CREDENTIAL)
+  coord    String?
+  location String?  @db.Text
 
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @default(now())
@@ -201,6 +203,8 @@ model Pengajuan {
   updatedAt  DateTime        @default(now())
   User       Users           @relation(fields: [usersId], references: [id])
   usersId    String
+  flagging   flagging?       @relation(fields: [flaggingId], references: [id])
+  flaggingId Int?
 }
 
 model DetailPengajuan {
@@ -233,4 +237,70 @@ model DetailPengajuan {
   produkId String
   jenisId  String
   usersId  String?
+}
+
+model flagging {
+  id                   Int         @id
+  status_peserta       String?
+  notas                String?
+  kantor_cabang        String?
+  alamat_cabang        String?
+  nipnrp               String?
+  nama_penerima        String?
+  jandadudaypdari      String?
+  alamatrumah          String?
+  penerbitskep         String?
+  noskep               String?
+  jnsdapem             String?
+  jnspens              String?
+  ktrbaydapem          String?
+  norek                String?
+  stsdapem             String?
+  tgllahir_penerima    String?
+  tgllahir_jandadudayp String?
+  nodosir              String?
+  tglskep              String?
+  tmtpens              String?
+  nudapem              String?
+  kdjiwa               Int?
+  pangkat              String?
+  tmt_stop             String?
+  kdknsdapem           String?
+  kdjnspens            String?
+  kdktrbyrdapem        String?
+  blthrincian          String?
+  penpok               String?
+  tistri               String?
+  tanak                String?
+  tpp                  String?
+  tpmtp                String?
+  tkd                  String?
+  tdahor               String?
+  tberas               String?
+  tpph21               String?
+  tcacat               String?
+  pembulatan           String?
+  jmlkotor             String?
+  potpph21             String?
+  potaskes             String?
+  potassos             String?
+  potkasda             String?
+  potkpkn              String?
+  potalimentasi        String?
+  potsewarumah         String?
+  potgantirugi         String?
+  jmlpotongan          String?
+  jmltotal             String?
+  kpkn                 String?
+  spn                  String?
+  tgl_surat            String?
+  tgl_sekarang         String?
+  keluarga             String?     @db.Text
+  jenishutang          String?
+  jumlah_hutang        String?
+  cicilan              String?
+  awal_flagging        String?
+  akhir_flagging       String?
+  mitra_flagging       String?
+  Pengajuan            Pengajuan[]
 }

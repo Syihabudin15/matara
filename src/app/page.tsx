@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import dynamic from "next/dynamic";
-const FaceCapture = dynamic(() => import("@/components/modals/FaceCapture"), {
+const FaceScanner = dynamic(() => import("@/components/modals/FaceScanner"), {
   ssr: false,
   loading: () => <LoadingOutlined />,
 });
@@ -37,39 +37,14 @@ export default function Login() {
           setLoading(false);
           return setErr("Username atau password salah");
         }
+        setUser(res.data);
         if (res.data.authType === AuthType.FACE) {
           setOpenFace(true);
-          setUser(res.data);
         } else {
           window && window.location.replace("/dashboard");
         }
       })
       .catch((err) => {
-        setErr(err);
-      });
-    setLoading(false);
-  };
-
-  const handleScanFace = async (descriptor: any) => {
-    if (!user) return;
-    setLoading(true);
-    await fetch("/api/auth", {
-      method: "PUT",
-      headers: { "Content-type": "Application/json" },
-      body: JSON.stringify({ userId: user.id, descriptor: descriptor }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.status !== 200) {
-          setLoading(false);
-          setOpenFace(true);
-          return setErr(err);
-        } else {
-          window && window.location.replace("/dashboard");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
         setErr(err);
       });
     setLoading(false);
@@ -83,11 +58,10 @@ export default function Login() {
           if (res.status === 200) {
             window && window.location.replace("/dashboard");
           }
-          return;
         })
         .catch((err) => {
           console.log(err);
-          alert("Error Login Page");
+          alert(err);
         });
     })();
   }, []);
@@ -132,8 +106,13 @@ export default function Login() {
           </Form>
         </div>
       </div>
-      {openFace && (
-        <FaceCapture mode="login" setFace={(e: any) => handleScanFace(e)} />
+      {user && (
+        <FaceScanner
+          user={user}
+          isOpen={openFace}
+          mode="Login"
+          setFace={() => {}}
+        />
       )}
     </div>
   );

@@ -21,6 +21,15 @@ export interface IUser {
   lng: number;
 }
 
+export interface INotif {
+  simulation: number;
+  verif: number;
+  slik: number;
+  approv: number;
+  akad: number;
+  si: number;
+}
+
 interface IOption {
   label: any;
   value: any;
