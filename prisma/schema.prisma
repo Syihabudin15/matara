@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,32 +13,224 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Devices {
-  id         String   @id @default(uuid())
-  deviceId   String   @unique
-  deviceName String
-  deviceType String
-  sistem     String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
-  Users      Users[]
+enum Role {
+  DEVELOPER
+  ADMIN
+  OPERASIONAL
+  ACCOUNTING
+  MOC
 }
 
-model Users {
-  id       String @id @default(uuid())
-  fullname String
-  email    String
-  address  String @db.Text
-  phone    String
-  nik      String @unique
-  nip      String @unique
-  position String
-  menu     String @db.Text
-  face     String @db.Text
-  image    String @db.Text
+enum AuthType {
+  FACE
+  CREDENTIAL
+}
+
+enum DeviceStatus {
+  PENDING
+  APPROVED
+  DELETED
+}
+
+enum SumdanType {
+  FRONTING
+  CHANNELLING
+}
+
+enum StatusPengajuan {
+  SIMULASI
+  PROCCESS
+  PENDING
+  APPROVED
+  REJECTED
+  TRANSFERED
+}
+
+enum JenisMargin {
+  ANUITAS
+  FLAT
+}
+
+model Devices {
+  id         String       @id @default(uuid())
+  deviceId   String       @unique
+  deviceName String
+  deviceType String
+  sistem     String
+  browser    String
+  status     DeviceStatus @default(PENDING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
-  deviceId  Devices  @relation(fields: [devicesId], references: [id])
-  devicesId String
+}
+
+model Users {
+  id       String   @id @default(uuid())
+  fullname String
+  username String   @unique
+  password String
+  email    String
+  address  String   @db.Text
+  phone    String
+  nik      String   @unique
+  nip      String   @unique
+  position String
+  menu     String?  @db.Text
+  face     String?  @db.Text
+  image    String?  @db.Text
+  status   Boolean  @default(true)
+  role     Role     @default(MOC)
+  authType AuthType @default(CREDENTIAL)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now())
+  Unit            Unit?             @relation(fields: [unitId], references: [id])
+  unitId          String?
+  Sumdan          Sumdan?           @relation(fields: [sumdanId], references: [id])
+  sumdanId        String?
+  Pengajuan       Pengajuan[]
+  DetailPengajuan DetailPengajuan[]
+}
+
+model Area {
+  id      String  @id @default(uuid())
+  name    String
+  code    String  @unique
+  phone   String? @unique
+  email   String? @unique
+  address String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Unit      Unit[]
+}
+
+model Unit {
+  id      String  @id @default(uuid())
+  name    String
+  code    String  @unique
+  phone   String? @unique
+  email   String? @unique
+  address String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  Area      Area     @relation(fields: [areaId], references: [id])
+  areaId    String
+  Users     Users[]
+}
+
+model Sumdan {
+  id             String  @id @default(uuid())
+  name           String
+  code           String  @unique
+  logo           String
+  maxInstallment Float   @default(95)
+  rounded        Int     @default(100)
+  skAkad         String? @db.Text
+
+  sumdanType SumdanType @default(CHANNELLING)
+  status     Boolean    @default(true)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now())
+  Users      Users[]
+  Produk     Produk[]
+}
+
+model Produk {
+  id              String      @id @default(uuid())
+  name            String
+  minAge          Float
+  maxAge          Float
+  maxPaidAge      Float
+  maxPlafon       Int
+  maxTenor        Int
+  marginSumdan    Float       @default(0)
+  marginKoperasi  Float       @default(0)
+  constInsurance  Float
+  costAdmSumdan   Float
+  costAdmKoperasi Float
+  costGovernance  Int
+  costStamp       Int
+  costAccount     Int
+  costProvision   Float
+  jenisMargin     JenisMargin @default(ANUITAS)
+
+  status          Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now())
+  Sumdan          Sumdan            @relation(fields: [sumdanId], references: [id])
+  sumdanId        String
+  DetailPengajuan DetailPengajuan[]
+}
+
+model Jenis {
+  id         String @id @default(uuid())
+  name       String
+  costMutasi Int
+  blokir     Int
+
+  status          Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @default(now())
+  DetailPengajuan DetailPengajuan[]
+}
+
+model Pengajuan {
+  id           String           @id @default(uuid())
+  nopen        String
+  nik          String
+  fullname     String
+  verifStatus  StatusPengajuan?
+  verifDesc    String?          @db.Text
+  verifDate    DateTime?
+  slikStatus   StatusPengajuan?
+  slikDesc     String?          @db.Text
+  slikDate     DateTime?
+  approvStatus StatusPengajuan?
+  approvDesc   String?          @db.Text
+  approvDate   DateTime?
+
+  transferStatus StatusPengajuan?
+  transferDate   DateTime?
+
+  status     StatusPengajuan @default(SIMULASI)
+  statusPaid Boolean         @default(false)
+  isActive   Boolean         @default(true)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @default(now())
+  User       Users           @relation(fields: [usersId], references: [id])
+  usersId    String
+}
+
+model DetailPengajuan {
+  id              String      @id @default(uuid())
+  birthdate       DateTime
+  oldSalary       Int
+  newSalary       Int
+  plafon          Int
+  tenor           Int
+  marginSumdan    Float
+  marginKoperasi  Float
+  constInsurance  Float
+  costAdmSumdan   Float
+  costAdmKoperasi Float
+  costGovernance  Int
+  costStamp       Int
+  costAccount     Int
+  costProvision   Float
+  costMutasi      Int
+  blokir          Int
+  bpp             Int
+  pelunasan       Int
+  installment     Int         @default(0)
+  rounded         Int
+  jenisMargin     JenisMargin @default(ANUITAS)
+
+  Produk   Produk  @relation(fields: [produkId], references: [id])
+  Jenis    Jenis   @relation(fields: [jenisId], references: [id])
+  User     Users?  @relation(fields: [usersId], references: [id])
+  produkId String
+  jenisId  String
+  usersId  String?
 }
