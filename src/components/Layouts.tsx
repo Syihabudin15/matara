@@ -1,13 +1,23 @@
 "use client";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
+
 import "@ant-design/v5-patch-for-react-19";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import Image from "next/image";
 import { App } from "antd";
 import { useEffect, useState } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
-import { MenuLayout } from "./utils/MenuLayout";
-import { Notification } from "./utils/NotifInfo";
-import Image from "next/image";
 import { UserProvider } from "./context/UserContext";
+import dynamic from "next/dynamic";
+
+const MenuLayout = dynamic(
+  () => import("@/components/utils/MenuLayout").then((d) => d.MenuLayout),
+  { ssr: false, loading: () => <LoadingOutlined /> }
+);
+
+const Notification = dynamic(
+  () => import("@/components/utils/NotifInfo").then((d) => d.Notification),
+  { ssr: false, loading: () => <LoadingOutlined /> }
+);
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [alowed, setAlowed] = useState<boolean | null>(null);
@@ -46,7 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       alt="App Logo"
                     />
                     <h1 className="font-bold text-lg text-white text-shadow-2xs">
-                      {process.env.NEXT_PUBLIC_APP_SHORTNAME || "APPName"}
+                      {process.env.NEXT_PUBLIC_APP_SHORTNAME || "AppName"}
                     </h1>
                   </div>
                   <div className="flex gap-4 items-center">

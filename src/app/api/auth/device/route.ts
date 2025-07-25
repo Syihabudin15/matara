@@ -12,7 +12,7 @@ export const GET = async (req: NextRequest) => {
   try {
     const cook = (await cookies()).get("vID")?.value;
     const find = await prisma.devices.findFirst({ where: { deviceId: cook } });
-    if (find) {
+    if (find && cook) {
       return NextResponse.json(
         {
           msg: "Device sudah terdaftar",
