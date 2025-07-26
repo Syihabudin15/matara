@@ -27,7 +27,7 @@ const FaceScanner = dynamic(() => import("@/components/modals/FaceScanner"), {
   loading: () => <LoadingOutlined />,
 });
 
-export const UserTable = () => {
+export default function UserTable() {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -85,7 +85,7 @@ export const UserTable = () => {
       title: "NO",
       dataIndex: "no",
       key: "no",
-      width: 50,
+      width: 80,
       className: "text-xs text-center",
       onHeaderCell: () => {
         return {
@@ -393,7 +393,7 @@ export const UserTable = () => {
       }}
     />
   );
-};
+}
 
 export const ModalDeleteUser = ({
   record,
@@ -603,6 +603,7 @@ const PersonalData = ({
   units: Unit[];
   sumdans: Sumdan[];
 }) => {
+  const [openFace, setOpenFace] = useState(false);
   return (
     <div className="my-5 flex gap-5 flex-col sm:flex-row flex-wrap justify-between">
       <div className="w-full sm:w-[45%]">
@@ -731,7 +732,7 @@ const PersonalData = ({
         {data && (
           <FaceScanner
             user={data}
-            isOpen={false}
+            isOpen={openFace}
             mode="Register"
             setFace={(e: any) =>
               setData((prev: Users) => ({ ...prev, face: JSON.stringify(e) }))

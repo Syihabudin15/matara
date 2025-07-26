@@ -68,12 +68,12 @@ export default function Login() {
 
   return (
     <div className="flex justify-center sm:justify-end items-center w-full h-[92vh] bg-gradient-to-br from-purple-500 to-orange-500">
-      <div className="bg-slate-50 p-5 h-[50vh] sm:h-full w-[90vw] sm:w-[30vw] flex flex-col items-center justify-center gap-5">
+      <div className="bg-slate-50 p-5 h-[50vh] sm:h-full w-[90vw] sm:w-[30vw] flex flex-col items-center justify-center">
         <Image
-          src={process.env.nNEXT_PUBLIC_APP_LOGO || "/globe.svg"}
+          src={process.env.NEXT_PUBLIC_APP_LOGO || "/globe.svg"}
           alt="App Logo"
-          width={50}
-          height={50}
+          width={100}
+          height={100}
         />
         <div className="my-5 w-full">
           <Form

@@ -2,7 +2,7 @@ import prisma from "@/components/Prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { getSession, signOut, signIn } from "@/components/utils/AuthUtils";
-import { AuthType, Users } from "@prisma/client";
+import { AuthType } from "@prisma/client";
 
 const euclideanDistance = (d1: number[], d2: number[]): number => {
   return Math.sqrt(d1.reduce((acc, val, i) => acc + (val - d2[i]) ** 2, 0));
@@ -21,7 +21,6 @@ export const PUT = async (req: NextRequest) => {
       { status: 400 }
     );
   }
-
   try {
     const find = await prisma.users.findFirst({
       where: {

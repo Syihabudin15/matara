@@ -11,14 +11,6 @@ if (distance < 0.6) {
   res.status(401).json({ message: 'Wajah tidak cocok ❌' });
 }
 
-Check Foreach User
-for (const user of users) {
-      const distance = euclideanDistance(user.descriptor, descriptor);
-      if (distance < 0.6) {
-        return res.status(200).json({
-          message: 'Login Berhasil ✅',
-          userId: user.userId,
-          distance: distance.toFixed(4),
-        });
-      }
-    }
+- Simpan data Simulasi
+- Scan berkas - berkas untuk pengajuan
+- Ajukan ke verifikasi

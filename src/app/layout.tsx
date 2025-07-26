@@ -16,9 +16,6 @@ export const metadata: Metadata = {
     template: `%s | ${process.env.NEXT_PUBLIC_APP_SHORTNAME}`,
   },
   description: "Sistem Informasi Pensiunan",
-  icons: new URL(
-    `${process.env.NEXT_PUBLIC_APP_URL}${process.env.NEXT_PUBLIC_APP_LOGO}`
-  ),
 };
 
 export default function RootLayout({

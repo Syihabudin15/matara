@@ -7,13 +7,13 @@ import { Users } from "@prisma/client";
 
 export default function FaceScanner({
   mode,
-  isOpen,
   setFace,
+  isOpen,
   user,
 }: {
   mode: "Login" | "Register";
-  isOpen: boolean;
   setFace: Function;
+  isOpen: boolean;
   user: Users;
 }) {
   const [open, setOpen] = useState(false);
@@ -32,6 +32,11 @@ export default function FaceScanner({
         faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
       ]);
+      setStatus("Verifikasi Wajah");
+      if (mode === "Login" && isOpen) {
+        setOpen(true);
+        startVideo();
+      }
     })();
   }, []);
 
@@ -83,10 +88,10 @@ export default function FaceScanner({
       setLoading(true);
       setStatus("Scanning...");
       if (mode === "Register") {
-        setStatus("Terdeteksi");
-        setFace(JSON.stringify(descriptor));
+        stopVideo();
+        setStatus("Face Terdeteksi");
+        setFace(descriptor);
         setOpen(false);
-        return;
       } else {
         await fetch("/api/auth", {
           method: "PUT",
@@ -96,8 +101,9 @@ export default function FaceScanner({
           .then((res) => res.json())
           .then((res) => {
             if (res.status !== 200) {
-              return setStatus(res.msg);
+              setStatus(`Wajah ${user.fullname} Terdeteksi`);
             } else {
+              stopVideo();
               setOpen(false);
               window && window.location.replace("/dashboard");
             }
@@ -121,21 +127,16 @@ export default function FaceScanner({
     }
   };
 
-  useEffect(() => {
-    if (open || isOpen) {
-      startVideo();
-    } else {
-      stopVideo();
-    }
-  }, [open, isOpen]);
-
   return (
     <div>
       {mode === "Register" && (
         <div className="flex items-center justify-between gap-2">
           <p className="w-42">Face Regognation</p>
           <Button
-            onClick={() => setOpen(true)}
+            onClick={() => {
+              setOpen(true);
+              startVideo();
+            }}
             loading={loading}
             type="primary"
             size="small"
@@ -146,7 +147,7 @@ export default function FaceScanner({
       )}
       <Modal
         title={status}
-        open={mode === "Register" ? open : isOpen}
+        open={open}
         closable={false}
         footer={[]}
         loading={loading}
@@ -164,26 +165,24 @@ export default function FaceScanner({
             muted
             playsInline
             style={{
-              width: 300,
-              height: 300,
+              width: "100%",
+              height: "auto",
               position: "absolute",
               top: 0,
               left: 0,
               zIndex: 1,
               borderRadius: "40%",
-              margin: "auto",
             }}
           />
           <canvas
             ref={canvasRef}
             style={{
-              width: 300,
-              height: 300,
+              width: "100%",
+              height: "auto",
               position: "absolute",
               top: 0,
               left: 0,
               zIndex: 2,
-              margin: "auto",
             }}
           />
         </div>

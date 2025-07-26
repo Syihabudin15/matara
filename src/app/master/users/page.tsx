@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { UserTable } from ".";
+import UserTable from ".";
 
 export const metadata: Metadata = {
   title: "User Management",
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <div className="p-1">
-      <UserTable key={"User Table"} />
+      <UserTable key={"userTable"} />
     </div>
   );
 }
