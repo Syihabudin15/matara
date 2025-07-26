@@ -46,7 +46,7 @@ export const JenisTable = () => {
       title: "NO",
       dataIndex: "no",
       key: "no",
-      width: 30,
+      width: 50,
       className: "text-xs text-center",
       onHeaderCell: () => {
         return {

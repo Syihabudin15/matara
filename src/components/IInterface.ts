@@ -5,8 +5,10 @@ import {
   Pengajuan,
   Produk,
   Role,
+  StatusPengajuan,
   Sumdan,
   Unit,
+  Users,
 } from "@prisma/client";
 
 export interface IUser {
@@ -19,6 +21,7 @@ export interface IUser {
   role: Role;
   lat: number;
   lng: number;
+  location: string;
 }
 
 export interface INotif {
@@ -87,4 +90,19 @@ export interface ISimulasi extends Pengajuan {
   DetailPengajuan: IDetailPengajuan;
   maxTenor: number;
   maxPlafon: number;
+}
+
+export interface IPengajuan extends Pengajuan {
+  DetailPengajuan: IDetailPengajuan;
+}
+export interface IDataPengajuan extends Pengajuan {
+  DetailPengajuan: IDetailPengajuan;
+  Users: Users;
+}
+
+export interface IProccesPengajuan {
+  status: StatusPengajuan;
+  desc: string;
+  user: string;
+  time: string;
 }

@@ -13,33 +13,17 @@ export const POST = async (req: NextRequest) => {
     }
     const splitLoc = find.location ? find.location.split(";") : [];
     if (splitLoc.length !== 0) {
-      console.log({
-        status: "Update",
-        coord,
-        location:
-          location !== splitLoc[splitLoc.length - 1]
-            ? `${find.location};${location}`
-            : find.location,
-      });
       await prisma.users.update({
         where: { id: id },
         data: {
           coord: coord,
           location:
             location !== splitLoc[splitLoc.length - 1]
-              ? `${find.location};${location}`
+              ? `${coord} | ${find.location};${location}`
               : find.location,
         },
       });
     } else {
-      console.log({
-        status: "Fisrt Input",
-        coord,
-        location:
-          location !== splitLoc[splitLoc.length - 1]
-            ? `${find.location};${location}`
-            : find.location,
-      });
       await prisma.users.update({
         where: { id: id },
         data: {

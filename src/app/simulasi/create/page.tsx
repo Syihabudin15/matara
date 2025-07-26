@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { CreateSimulation } from ".";
 
 export const metadata: Metadata = {
-  title: "Simulasi Kredit",
+  title: "Perhitungan",
 };
 export default function Page() {
   return (

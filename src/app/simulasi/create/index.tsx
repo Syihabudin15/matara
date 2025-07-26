@@ -37,12 +37,23 @@ import moment from "moment";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-export const CreateSimulation = ({ mode }: { mode: "Simulasi" | "Input" }) => {
+export const CreateSimulation = ({
+  mode,
+  record,
+}: {
+  mode: "Simulasi" | "Input";
+  record?: ISimulasi;
+}) => {
   const user = useUser();
-  const [data, setData] = useState<ISimulasi>({
-    ...defaultSimulation,
-    usersId: user?.id || "",
-  });
+  const [data, setData] = useState<ISimulasi>(
+    record || {
+      ...defaultSimulation,
+      usersId: user?.id || "",
+      coordinates:
+        user && user.lat && user.lng ? `${user?.lat}, ${user?.lng}` : "",
+      location: user?.location || "",
+    }
+  );
   const [produks, setProduks] = useState<IProduk[]>([]);
   const [jeniss, setJeniss] = useState<Jenis[]>([]);
 
@@ -413,6 +424,7 @@ const DataDebitur = ({
                 ...prev,
                 DetailPengajuan: {
                   ...prev.DetailPengajuan,
+                  produkId: find.id,
                   Produk: find,
                   marginKoperasi: find.marginKoperasi,
                   marginSumdan: find.marginSumdan,
@@ -427,6 +439,8 @@ const DataDebitur = ({
                   jenisMargin: find.jenisMargin,
                   rounded: find.Sumdan.rounded,
                 },
+                maxTenor: find.maxTenor,
+                maxPlafon: find.maxPlafon,
               }));
             }}
             size="small"
@@ -446,6 +460,7 @@ const DataDebitur = ({
                 ...prev,
                 DetailPengajuan: {
                   ...prev.DetailPengajuan,
+                  jenisId: find.id,
                   Jenis: find,
                   costMutasi: find.costMutasi,
                   blokir: find.blokir,
@@ -1128,11 +1143,88 @@ const SaveModal = ({
       value: StatusPengajuan.SIMULASI,
     },
     {
-      label: "PENDING",
+      label: "PROSES",
       desc: "Data diajukan ke verifikasi, tapi status masih di MOC (Perlengkapan Berkas)",
-      value: StatusPengajuan.PENDING,
+      value: StatusPengajuan.PROCCESS,
     },
   ];
+
+  const handleSave = async () => {
+    setLoading(true);
+    await fetch("/api/pengajuan", {
+      method: "POST",
+      headers: { "Content-type": "Application/json" },
+      body: JSON.stringify({
+        nopen: data.nopen,
+        nik: data.nik,
+        fullname: data.fullname,
+        verifStatus: null,
+        verifDesc: null,
+        verifDate: null,
+        slikStatus: null,
+        slikDesc: null,
+        slikDate: null,
+        approvStatus: null,
+        approvDesc: null,
+        approvDate: null,
+        transferStatus: null,
+        transferDate: null,
+        coordinates: data.coordinates,
+        location: data.location,
+        fileSLIK: null,
+        fileKTP: null,
+        fileKK: null,
+        fileNPWP: null,
+        filePK: null,
+        desc: data.desc,
+        status: data.status,
+        statusPaid: false,
+        isActive: true,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        usersId: data.usersId,
+        flaggingId: data.flaggingId,
+        detailPengajuanId: "",
+        DetailPengajuan: {
+          birthdate: data.DetailPengajuan.birthdate,
+          oldSalary: data.DetailPengajuan.oldSalary,
+          newSalary: data.DetailPengajuan.newSalary,
+          plafon: data.DetailPengajuan.plafon,
+          tenor: data.DetailPengajuan.tenor,
+          marginSumdan: data.DetailPengajuan.marginSumdan,
+          marginKoperasi: data.DetailPengajuan.marginKoperasi,
+          constInsurance: data.DetailPengajuan.constInsurance,
+          costAdmSumdan: data.DetailPengajuan.costAdmSumdan,
+          costAdmKoperasi: data.DetailPengajuan.costAdmKoperasi,
+          costGovernance: data.DetailPengajuan.costGovernance,
+          costStamp: data.DetailPengajuan.costStamp,
+          costAccount: data.DetailPengajuan.costAccount,
+          costProvision: data.DetailPengajuan.costProvision,
+          costMutasi: data.DetailPengajuan.costMutasi,
+          blokir: data.DetailPengajuan.blokir,
+          bpp: data.DetailPengajuan.bpp,
+          pelunasan: data.DetailPengajuan.pelunasan,
+          installment: data.DetailPengajuan.installment,
+          rounded: data.DetailPengajuan.rounded,
+          jenisMargin: data.DetailPengajuan.jenisMargin,
+          produkId: data.DetailPengajuan.produkId,
+          jenisId: data.DetailPengajuan.jenisId,
+        },
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.status !== 201) {
+          return alert(res.msg);
+        }
+        window && window.location.replace("/simulasi");
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(err);
+      });
+    setLoading(false);
+  };
 
   return (
     <div>
@@ -1161,7 +1253,8 @@ const SaveModal = ({
           <Button
             key={"saveSimulation"}
             type="primary"
-            onClick={() => console.log(data)}
+            onClick={() => handleSave()}
+            loading={loading}
           >
             Simpan
           </Button>,
@@ -1208,9 +1301,11 @@ const SaveModal = ({
           <FormInput
             type="string"
             label="Keterangan"
-            defaultValue={""}
+            defaultValue={data.desc}
             mode="horizontal"
-            onChange={(e: any) => {}}
+            onChange={(e: any) =>
+              setData((prev: ISimulasi) => ({ ...prev, desc: e }))
+            }
             size="small"
             required
           />
@@ -1229,6 +1324,16 @@ const SaveModal = ({
             label="Coordinates"
             mode="horizontal"
             defaultValue={`${user.lat},${user.lng}`}
+            onChange={(e: any) => {}}
+            size="small"
+            disabled
+            required
+          />
+          <FormInput
+            type="string"
+            label="Lokasi"
+            mode="horizontal"
+            defaultValue={user.location}
             onChange={(e: any) => {}}
             size="small"
             disabled
@@ -1281,6 +1386,15 @@ const defaultSimulation: ISimulasi = {
   maxTenor: 0,
   maxPlafon: 0,
   flaggingId: null,
+  coordinates: "",
+  location: "",
+  fileSLIK: "",
+  fileKTP: "",
+  fileKK: "",
+  fileNPWP: "",
+  filePK: "",
+  detailPengajuanId: "",
+  desc: "",
   DetailPengajuan: {
     id: "",
     birthdate: new Date(),
@@ -1306,7 +1420,6 @@ const defaultSimulation: ISimulasi = {
     jenisMargin: "ANUITAS",
     produkId: "",
     jenisId: "",
-    usersId: null,
 
     Produk: {
       id: "",

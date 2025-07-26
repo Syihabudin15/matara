@@ -51,6 +51,7 @@ export const PUT = async (req: NextRequest) => {
         role: find.role,
         lat: 0,
         lng: 0,
+        location: "",
       });
       return NextResponse.json(
         {
@@ -129,6 +130,7 @@ export const POST = async (req: NextRequest) => {
         role: find.role,
         lat: 0,
         lng: 0,
+        location: "",
       });
     }
     return NextResponse.json(

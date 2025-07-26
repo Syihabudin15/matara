@@ -85,7 +85,7 @@ export default function UserTable() {
       title: "NO",
       dataIndex: "no",
       key: "no",
-      width: 80,
+      width: 50,
       className: "text-xs text-center",
       onHeaderCell: () => {
         return {
@@ -118,7 +118,7 @@ export default function UserTable() {
       },
     },
     {
-      title: "Username",
+      title: "USERNAME",
       dataIndex: "username",
       key: "username",
       className: "text-xs",
@@ -436,6 +436,7 @@ export const ModalDeleteUser = ({
         open={open}
         title={`Hapus Akun ${record.fullname}`}
         loading={loading}
+        onCancel={() => setOpen(false)}
         footer={[
           <Button
             key={"submit"}

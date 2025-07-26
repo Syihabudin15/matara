@@ -101,8 +101,10 @@ export default function FaceScanner({
           .then((res) => res.json())
           .then((res) => {
             if (res.status !== 200) {
-              setStatus(`Wajah ${user.fullname} Terdeteksi`);
+              setStatus(`Bukan ${user.fullname} !!!`);
+              setLoading(false);
             } else {
+              setStatus(`Wajah ${user.fullname} Terdeteksi`);
               stopVideo();
               setOpen(false);
               window && window.location.replace("/dashboard");
@@ -151,6 +153,7 @@ export default function FaceScanner({
         closable={false}
         footer={[]}
         loading={loading}
+        height={500}
       >
         <div
           style={{
@@ -166,19 +169,20 @@ export default function FaceScanner({
             playsInline
             style={{
               width: "100%",
-              height: "auto",
+              height: 400,
               position: "absolute",
               top: 0,
               left: 0,
               zIndex: 1,
               borderRadius: "40%",
+              transform: "scaleX(-1)",
             }}
           />
           <canvas
             ref={canvasRef}
             style={{
               width: "100%",
-              height: "auto",
+              height: 400,
               position: "absolute",
               top: 0,
               left: 0,

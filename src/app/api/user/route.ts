@@ -57,7 +57,7 @@ export const POST = async (req: NextRequest) => {
         email: data.email,
         phone: data.phone,
         nik: data.nik,
-        nip: data.fullname,
+        nip: data.nip,
         face: data.face,
         role: data.role,
         address: data.address,

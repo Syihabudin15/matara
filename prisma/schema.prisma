@@ -84,14 +84,13 @@ model Users {
   coord    String?
   location String?  @db.Text
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @default(now())
-  Unit            Unit?             @relation(fields: [unitId], references: [id])
-  unitId          String?
-  Sumdan          Sumdan?           @relation(fields: [sumdanId], references: [id])
-  sumdanId        String?
-  Pengajuan       Pengajuan[]
-  DetailPengajuan DetailPengajuan[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now())
+  Unit      Unit?       @relation(fields: [unitId], references: [id])
+  unitId    String?
+  Sumdan    Sumdan?     @relation(fields: [sumdanId], references: [id])
+  sumdanId  String?
+  Pengajuan Pengajuan[]
 }
 
 model Area {
@@ -179,32 +178,41 @@ model Jenis {
 }
 
 model Pengajuan {
-  id           String           @id @default(uuid())
-  nopen        String
-  nik          String
-  fullname     String
-  verifStatus  StatusPengajuan?
-  verifDesc    String?          @db.Text
-  verifDate    DateTime?
-  slikStatus   StatusPengajuan?
-  slikDesc     String?          @db.Text
-  slikDate     DateTime?
-  approvStatus StatusPengajuan?
-  approvDesc   String?          @db.Text
-  approvDate   DateTime?
-
+  id             String           @id @default(uuid())
+  nopen          String
+  nik            String
+  fullname       String
+  verifStatus    StatusPengajuan?
+  verifDesc      String?          @db.Text
+  verifDate      DateTime?
+  slikStatus     StatusPengajuan?
+  slikDesc       String?          @db.Text
+  slikDate       DateTime?
+  approvStatus   StatusPengajuan?
+  approvDesc     String?          @db.Text
+  approvDate     DateTime?
   transferStatus StatusPengajuan?
   transferDate   DateTime?
+  coordinates    String
+  location       String
+  fileSLIK       String?
+  fileKTP        String?
+  fileKK         String?
+  fileNPWP       String?
+  filePK         String?
+  desc           String
 
-  status     StatusPengajuan @default(SIMULASI)
-  statusPaid Boolean         @default(false)
-  isActive   Boolean         @default(true)
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @default(now())
-  User       Users           @relation(fields: [usersId], references: [id])
-  usersId    String
-  flagging   flagging?       @relation(fields: [flaggingId], references: [id])
-  flaggingId Int?
+  status            StatusPengajuan @default(SIMULASI)
+  statusPaid        Boolean         @default(false)
+  isActive          Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now())
+  User              Users           @relation(fields: [usersId], references: [id])
+  usersId           String
+  flagging          flagging?       @relation(fields: [flaggingId], references: [id])
+  flaggingId        Int?
+  DetailPengajuan   DetailPengajuan @relation(fields: [detailPengajuanId], references: [id])
+  detailPengajuanId String
 }
 
 model DetailPengajuan {
@@ -231,12 +239,11 @@ model DetailPengajuan {
   rounded         Int
   jenisMargin     JenisMargin @default(ANUITAS)
 
-  Produk   Produk  @relation(fields: [produkId], references: [id])
-  Jenis    Jenis   @relation(fields: [jenisId], references: [id])
-  User     Users?  @relation(fields: [usersId], references: [id])
-  produkId String
-  jenisId  String
-  usersId  String?
+  Produk    Produk      @relation(fields: [produkId], references: [id])
+  Jenis     Jenis       @relation(fields: [jenisId], references: [id])
+  produkId  String
+  jenisId   String
+  Pengajuan Pengajuan[]
 }
 
 model flagging {

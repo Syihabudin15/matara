@@ -1,9 +1,13 @@
 "use client";
-import { FormOutlined, PlusCircleFilled } from "@ant-design/icons";
-import { Button, Input, Modal, Table, TableProps } from "antd";
+import { IDataPengajuan } from "@/components/IInterface";
+import FileScanner from "@/components/modals/FileScanner";
+import { IDRFormat } from "@/components/utils/Functions";
+import { PlusCircleFilled } from "@ant-design/icons";
+import { Button, Input, Table, TableProps, Typography } from "antd";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+const { Paragraph } = Typography;
 
 export const SimulasiTable = () => {
   const [loading, setLoading] = useState(false);
@@ -11,53 +15,43 @@ export const SimulasiTable = () => {
   const [pageSize, setPageSize] = useState(50);
   const [search, setSearch] = useState<string>();
   const [total, setTotal] = useState(0);
-  // const [data, setData] = useState<Unit[]>([]);
-  // const [area, setArea] = useState<Area[]>([]);
+  const [data, setData] = useState<IDataPengajuan[]>([]);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   (async () => {
-  //     await fetch(`/api/area?page=1&pageSize=1000`)
-  //       .then((res) => res.json())
-  //       .then((res) => {
-  //         setArea(res.data.map((d: Area, i: any) => ({ ...d, key: i })));
-  //       })
-  //       .catch((err) => console.log(err));
-  //   })();
-  // }, []);
+  const getData = async () => {
+    setLoading(true);
+    await fetch(
+      `/api/pengajuan?page=${page}&pageSize=${pageSize}${
+        search ? "&search=" + search : ""
+      }`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        setData(
+          res.data.map((d: IDataPengajuan, i: any) => ({ ...d, key: i }))
+        );
+        setTotal(res.total);
+      })
+      .catch((err) => console.log(err));
+    setLoading(false);
+  };
 
-  // const getData = async () => {
-  //   setLoading(true);
-  //   await fetch(
-  //     `/api/unit?page=${page}&pageSize=${pageSize}${
-  //       search ? "&search=" + search : ""
-  //     }`
-  //   )
-  //     .then((res) => res.json())
-  //     .then((res) => {
-  //       setData(res.data.map((d: Unit, i: any) => ({ ...d, key: i })));
-  //       setTotal(res.total);
-  //     })
-  //     .catch((err) => console.log(err));
-  //   setLoading(false);
-  // };
+  useEffect(() => {
+    let timeout: any;
+    (async () => {
+      timeout = setTimeout(async () => {
+        await getData();
+      }, 200);
+    })();
+    return () => clearTimeout(timeout);
+  }, [search, page, pageSize]);
 
-  // useEffect(() => {
-  //   let timeout: any;
-  //   (async () => {
-  //     timeout = setTimeout(async () => {
-  //       await getData();
-  //     }, 200);
-  //   })();
-  //   return () => clearTimeout(timeout);
-  // }, [search, page, pageSize]);
-
-  const columns: TableProps["columns"] = [
+  const columns: TableProps<IDataPengajuan>["columns"] = [
     {
       title: "NO",
       dataIndex: "no",
       key: "no",
-      width: 30,
+      width: 50,
       className: "text-xs text-center",
       onHeaderCell: () => {
         return {
@@ -72,9 +66,9 @@ export const SimulasiTable = () => {
       },
     },
     {
-      title: "TIPE KREDIT",
-      dataIndex: "kreditType",
-      key: "kreditType",
+      title: "NOPEN",
+      dataIndex: "nopen",
+      key: "nopen",
       className: "text-xs",
       width: 100,
       onHeaderCell: () => {
@@ -86,29 +80,11 @@ export const SimulasiTable = () => {
         };
       },
       render(value, record, index) {
-        return <>{record.name}</>;
+        return <>{record.nopen}</>;
       },
     },
     {
-      title: "NOPEN/NIK",
-      dataIndex: "noUnik",
-      key: "noUnik",
-      className: "text-xs",
-      width: 100,
-      onHeaderCell: () => {
-        return {
-          ["style"]: {
-            textAlign: "center",
-            fontSize: 12,
-          },
-        };
-      },
-      render(value, record, index) {
-        return <>{record.code}</>;
-      },
-    },
-    {
-      title: "NAMA PEMOHON",
+      title: "PEMOHON",
       dataIndex: "fullname",
       key: "fullname",
       className: "text-xs",
@@ -122,7 +98,7 @@ export const SimulasiTable = () => {
         };
       },
       render(value, record, index) {
-        return <>{record.address}</>;
+        return <>{record.fullname}</>;
       },
     },
     {
@@ -130,7 +106,7 @@ export const SimulasiTable = () => {
       dataIndex: "produk",
       key: "email",
       className: "text-xs",
-      width: 100,
+      width: 150,
       onHeaderCell: () => {
         return {
           ["style"]: {
@@ -140,14 +116,50 @@ export const SimulasiTable = () => {
         };
       },
       render(value, record, index) {
-        return <>{record.email}</>;
+        return <>{record.DetailPengajuan.Produk.name}</>;
       },
     },
     {
       title: "JENIS PEMBIAYAAN",
       dataIndex: "phone",
       key: "phone",
+      className: "text-xs text-center",
+      width: 150,
+      onHeaderCell: () => {
+        return {
+          ["style"]: {
+            textAlign: "center",
+            fontSize: 12,
+          },
+        };
+      },
+      render(value, record, index) {
+        return <>{record.DetailPengajuan.Jenis.name}</>;
+      },
+    },
+    {
+      title: "SUMBER DANA",
+      dataIndex: "sumdan",
+      key: "sumdan",
       className: "text-xs",
+      width: 150,
+      onHeaderCell: () => {
+        return {
+          ["style"]: {
+            textAlign: "center",
+            fontSize: 12,
+          },
+        };
+      },
+      render(value, record, index) {
+        return <>{record.DetailPengajuan.Produk.Sumdan.name}</>;
+      },
+    },
+    {
+      title: "PLAFON",
+      dataIndex: "plafon",
+      key: "plafon",
+      className: "text-xs text-right",
       width: 100,
       onHeaderCell: () => {
         return {
@@ -158,7 +170,55 @@ export const SimulasiTable = () => {
         };
       },
       render(value, record, index) {
-        return <>{record.phone}</>;
+        return <>{IDRFormat(record.DetailPengajuan.plafon)}</>;
+      },
+    },
+    {
+      title: "TENOR",
+      dataIndex: "tenor",
+      key: "tenor",
+      className: "text-xs text-center",
+      width: 100,
+      onHeaderCell: () => {
+        return {
+          ["style"]: {
+            textAlign: "center",
+            fontSize: 12,
+          },
+        };
+      },
+      render(value, record, index) {
+        return <>{record.DetailPengajuan.tenor}</>;
+      },
+    },
+    {
+      title: "KETERANGAN",
+      dataIndex: "desc",
+      key: "desc",
+      className: "text-xs",
+      width: 150,
+      onHeaderCell: () => {
+        return {
+          ["style"]: {
+            textAlign: "center",
+            fontSize: 12,
+          },
+        };
+      },
+      render(value, record, index) {
+        return (
+          <>
+            <Paragraph
+              ellipsis={{
+                rows: 1,
+                expandable: "collapsible",
+              }}
+              style={{ fontSize: 12 }}
+            >
+              {record.desc}
+            </Paragraph>
+          </>
+        );
       },
     },
     {
@@ -214,7 +274,7 @@ export const SimulasiTable = () => {
       render(value, record, index) {
         return (
           <div className="flex gap-2 justify-center">
-            <p>E</p>
+            <FileScanner />
             <p>D</p>
           </div>
         );
@@ -252,7 +312,7 @@ export const SimulasiTable = () => {
       size="small"
       bordered
       loading={loading}
-      // dataSource={data}
+      dataSource={data}
       scroll={{ x: "max-content", y: 370 }}
       pagination={{
         size: "small",

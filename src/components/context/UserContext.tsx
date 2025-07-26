@@ -24,6 +24,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               role: res.data.role,
               lat: 0,
               lng: 0,
+              location: "",
             });
             return;
           }
@@ -82,6 +83,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             .then((res) => res.json())
             .then((data) => {
               console.log("Location sent to API:", data.data);
+              setUser({ ...user, location: `${location} | ${locStatus}` });
             })
             .catch((err) => console.error("Failed to send location:", err));
         })();

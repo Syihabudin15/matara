@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOutlined,
   CalculatorOutlined,
   DashboardOutlined,
   DatabaseOutlined,
@@ -67,6 +68,11 @@ export const MenuLayout = () => {
               icon: <CalculatorOutlined />,
             },
             {
+              label: "Monitoring Pembiayaan",
+              key: "/monitoring",
+              icon: <BookOutlined />,
+            },
+            {
               label: "Master Data",
               key: "/master",
               icon: <DatabaseOutlined />,
@@ -122,8 +128,11 @@ const UserBio = ({ user }: { user: IUser }) => {
         </div>
         <p className="font-bold">{user.fullname.toUpperCase()}</p>
       </div>
-      <div className="flex flex-row gap-2 text-xs italic mt-2 opacity-70">
-        <p>Lat: {user.lat}</p>|<p>Lng: {user.lng}</p>
+      <div style={{ fontSize: 9 }} className=" text-xs italic mt-2 opacity-70">
+        <p>{user.location}</p>
+        <div className="flex flex-row gap-2">
+          <p>Lat: {user.lat}</p>|<p>Lng: {user.lng}</p>
+        </div>
       </div>
     </div>
   );
