@@ -102,8 +102,14 @@ export default function FileScanner() {
         />
 
         <br />
-        <button onClick={captureImage}>📸 Capture</button>
-
+        <div className="flex justify-center">
+          <button
+            onClick={captureImage}
+            className="border bg-blue-500 text-gray-50 w-10 h-10 rounded-full"
+          >
+            <CameraOutlined />
+          </button>
+        </div>
         <br />
         <br />
         <canvas
