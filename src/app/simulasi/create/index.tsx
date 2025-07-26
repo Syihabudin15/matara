@@ -18,16 +18,15 @@ import {
   IDRToNumber,
 } from "@/components/utils/Functions";
 import {
+  CalculatorOutlined,
   CameraFilled,
   HistoryOutlined,
   SaveFilled,
   SearchOutlined,
 } from "@ant-design/icons";
 import {
-  DetailPengajuan,
   Jenis,
   JenisMargin,
-  Pengajuan,
   StatusPengajuan,
   SumdanType,
 } from "@prisma/client";
@@ -192,7 +191,12 @@ export const CreateSimulation = ({
         <Pembiayaan data={data} setData={setData} />
         {mode === "Simulasi" && user && (
           <div className="flex justify-end gap-2 items-center mt-4">
-            <ModalSimulasi data={data} setData={setData} user={user} />
+            <ModalSimulasi
+              data={data}
+              setData={setData}
+              user={user}
+              mode="Simulasi"
+            />
           </div>
         )}
       </div>
@@ -832,10 +836,12 @@ export const Pembiayaan = ({
 
 export const ModalSimulasi = ({
   data,
+  mode,
   setData,
   user,
 }: {
   data: ISimulasi;
+  mode: "Simulasi" | "Detail";
   setData: Function;
   user: IUser;
 }) => {
@@ -843,22 +849,33 @@ export const ModalSimulasi = ({
 
   return (
     <div className="flex gap-2 items-center">
-      <Button
-        danger
-        size="small"
-        icon={<HistoryOutlined />}
-        onClick={() => setData(defaultSimulation)}
-      >
-        Reset
-      </Button>
-      <Button
-        size="small"
-        type="primary"
-        icon={<CameraFilled />}
-        onClick={() => setOpen(true)}
-      >
-        Snapshoot
-      </Button>
+      {mode === "Simulasi" && (
+        <>
+          <Button
+            danger
+            size="small"
+            icon={<HistoryOutlined />}
+            onClick={() => setData(defaultSimulation)}
+          >
+            Reset
+          </Button>
+          <Button
+            size="small"
+            type="primary"
+            icon={<CameraFilled />}
+            onClick={() => setOpen(true)}
+          >
+            Snapshoot
+          </Button>
+        </>
+      )}
+      {mode === "Detail" && (
+        <Button
+          icon={<CalculatorOutlined />}
+          size="small"
+          onClick={() => setOpen(true)}
+        ></Button>
+      )}
       <Modal
         open={open}
         width={window.innerWidth > 600 ? "80vw" : "100vw"}
@@ -867,7 +884,9 @@ export const ModalSimulasi = ({
         footer={[
           <div
             key={"saveAndCloseSimulation"}
-            className="flex justify-end gap-2"
+            className={`${
+              mode === "Detail" ? "hidden" : "flex"
+            } justify-end gap-2`}
           >
             <Button onClick={() => setOpen(false)}>Close</Button>
             <SaveModal data={data} setData={setData} user={user} />
@@ -923,6 +942,7 @@ export const ModalSimulasi = ({
                   .set("date", 28)
                   .add(data.DetailPengajuan.tenor + 1, "month")
                   .format("DD/MM/YYYY")}
+                bold
               />
               <ItemModalSimulation
                 label="Usia Lunas"
@@ -939,6 +959,8 @@ export const ModalSimulasi = ({
               <ItemModalSimulation
                 label="Gaji Bersih"
                 rightValue={IDRFormat(data.DetailPengajuan.newSalary)}
+                bold
+                color="green"
               />
               <ItemModalSimulation
                 label="Produk Pembiayaan"
@@ -1045,6 +1067,8 @@ export const ModalSimulasi = ({
                     blokir;
                   return IDRFormat(result);
                 })()}
+                bold
+                color="red"
               />
               <ItemModalSimulation
                 label="Terima Kotor"
@@ -1073,14 +1097,17 @@ export const ModalSimulasi = ({
                       blokir);
                   return IDRFormat(result);
                 })()}
+                bold
               />
               <ItemModalSimulation
                 label="BPP"
                 rightValue={IDRFormat(data.DetailPengajuan.bpp)}
+                color="red"
               />
               <ItemModalSimulation
                 label="Pelunasan"
                 rightValue={IDRFormat(data.DetailPengajuan.pelunasan)}
+                color="red"
               />
               <ItemModalSimulation
                 label="Terima Bersih"
@@ -1112,6 +1139,8 @@ export const ModalSimulasi = ({
                     (data.DetailPengajuan.bpp + data.DetailPengajuan.pelunasan);
                   return IDRFormat(result);
                 })()}
+                bold
+                color="green"
               />
             </div>
           </div>
@@ -1120,10 +1149,6 @@ export const ModalSimulasi = ({
     </div>
   );
 };
-
-interface IPengajuan extends Pengajuan {
-  DetailPengajuan: DetailPengajuan;
-}
 
 const SaveModal = ({
   data,

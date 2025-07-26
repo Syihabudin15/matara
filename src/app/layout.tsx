@@ -25,6 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <script async src="https://docs.opencv.org/4.x/opencv.js"></script>
       <body className={`${jetBrainsMono.variable} antialiased`}>
         <App>
           <AntdRegistry>

@@ -9,12 +9,19 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser>();
 
   useEffect(() => {
+    if (!("geolocation" in navigator) || typeof window === "undefined") {
+      alert("Geolocation tidak tersedia. Mohon aktifkan GPS!");
+    }
+    let temp: IUser | undefined = undefined;
     (async () => {
       await fetch("/api/auth")
         .then((res) => res.json())
         .then((res) => {
           if (res.status === 200) {
-            setUser({
+            const firstCoord = res.data.coord
+              ? res.data.coord.split(",")
+              : null;
+            temp = {
               id: res.data.id,
               fullname: res.data.fullname,
               username: res.data.username,
@@ -22,80 +29,68 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
               phone: res.data.phone,
               position: res.data.position,
               role: res.data.role,
-              lat: 0,
-              lng: 0,
+              lat: firstCoord ? firstCoord[0] : 0,
+              lng: firstCoord ? firstCoord[1] : 0,
               location: "",
-            });
-            return;
+            };
           }
         })
         .catch((err) => console.log(err));
     })();
-  }, []);
-
-  useEffect(() => {
-    if (!("geolocation" in navigator) || typeof window === "undefined") {
-      alert("Geolocation is not available");
-      return;
-    }
-    let locStatus = "REAL";
-
-    const successCallback = (position: GeolocationPosition) => {
+    const successCallback = async (position: GeolocationPosition) => {
       const { latitude, longitude, accuracy } = position.coords;
-      if (user) {
-        setUser({ ...user, lat: latitude, lng: longitude });
-        locStatus = accuracy > 100 ? "FAKE" : "REAL";
-      }
+      await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+      )
+        .then((res) => res.json())
+        .then(async (data) => {
+          if (temp) {
+            setUser({
+              id: temp.id,
+              fullname: temp.fullname,
+              username: temp.username,
+              email: temp.email,
+              phone: temp.phone,
+              position: temp.position,
+              role: temp.role,
+              lat: latitude,
+              lng: longitude,
+              location: `${data.display_name} | ${
+                accuracy > 100 ? "FAKE" : "REAL"
+              }`,
+            });
+            await fetch("/api/track", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                id: temp.id,
+                coord: `${latitude},${longitude}`,
+                location: `${data.display_name} | ${
+                  accuracy > 100 ? "FAKE" : "REAL"
+                }`,
+              }),
+            })
+              .then((res) => res.json())
+              .then(() => {
+                console.log("Location Update:", data.display_name);
+              })
+              .catch((err) => console.error("Failed to send location:", err));
+          }
+        })
+        .catch((err) => console.error(err));
     };
 
     const errorCallback = (err: GeolocationPositionError) => {
       alert(err.message);
     };
-
     const watcher = navigator.geolocation.watchPosition(
       successCallback,
       errorCallback
     );
-    // Interval to call API every 10 seconds
-    const intervalId = setInterval(() => {
-      if (user && user.lat && user.lng) {
-        // Ganti URL dan payload sesuai kebutuhanmu
-        (async () => {
-          let location = "";
-          await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${user.lat}&lon=${user.lng}`
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              location = data.display_name;
-            })
-            .catch((err) => console.error(err));
 
-          await fetch("/api/track", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              id: user.id,
-              coord: `${user.lat},${user.lng}`,
-              location: `${location} | ${locStatus}`,
-            }),
-          })
-            .then((res) => res.json())
-            .then((data) => {
-              console.log("Location sent to API:", data.data);
-              setUser({ ...user, location: `${location} | ${locStatus}` });
-            })
-            .catch((err) => console.error("Failed to send location:", err));
-        })();
-      }
-    }, 5000); // 5 detik
+    return () => navigator.geolocation.clearWatch(watcher);
+  }, []);
 
-    // optional: stop tracking on unmount
-    return () => {
-      navigator.geolocation.clearWatch(watcher);
-      clearInterval(intervalId);
-    };
-  }, [user]);
   return (
     <userContext.Provider value={user as IUser}>
       {children}

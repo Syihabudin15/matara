@@ -32,7 +32,7 @@ export default function FaceScanner({
         faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
       ]);
-      setStatus("Verifikasi Wajah");
+      setStatus("FACE RECOGNATION READY");
       if (mode === "Login" && isOpen) {
         setOpen(true);
         startVideo();
@@ -89,7 +89,7 @@ export default function FaceScanner({
       setStatus("Scanning...");
       if (mode === "Register") {
         stopVideo();
-        setStatus("Face Terdeteksi");
+        setStatus("WAJAH TERDETEKSI");
         setFace(descriptor);
         setOpen(false);
       } else {
@@ -101,10 +101,10 @@ export default function FaceScanner({
           .then((res) => res.json())
           .then((res) => {
             if (res.status !== 200) {
-              setStatus(`Bukan ${user.fullname} !!!`);
+              setStatus(`BUKAN WAJAH ${user.fullname} !!!`);
               setLoading(false);
             } else {
-              setStatus(`Wajah ${user.fullname} Terdeteksi`);
+              setStatus(`WAJAH ${user.fullname} TERDETEKSI`);
               stopVideo();
               setOpen(false);
               window && window.location.replace("/dashboard");
@@ -117,7 +117,7 @@ export default function FaceScanner({
       }
       setLoading(false);
     } else {
-      setStatus("Tidak terdeteksi!");
+      setStatus("TIDAK TERDETEKSI !");
     }
   };
   const stopVideo = () => {
@@ -169,12 +169,12 @@ export default function FaceScanner({
             playsInline
             style={{
               width: "100%",
-              height: 400,
+              maxWidth: 500,
               position: "absolute",
               top: 0,
               left: 0,
               zIndex: 1,
-              borderRadius: "40%",
+              borderRadius: "10%",
               transform: "scaleX(-1)",
             }}
           />
@@ -182,7 +182,7 @@ export default function FaceScanner({
             ref={canvasRef}
             style={{
               width: "100%",
-              height: 400,
+              maxWidth: 500,
               position: "absolute",
               top: 0,
               left: 0,

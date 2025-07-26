@@ -118,13 +118,21 @@ export const ItemModalSimulation = ({
   label,
   leftValue,
   rightValue,
+  bold,
+  color,
 }: {
   label: string;
   leftValue?: any;
   rightValue: any;
+  bold?: boolean;
+  color?: string;
 }) => {
   return (
-    <div className="flex sm:gap-2 items-center border-b border-gray-200">
+    <div
+      className={`${bold && "font-bold"} ${
+        color && `text-${color}-500`
+      } flex sm:gap-2 items-center border-b border-gray-200`}
+    >
       <p className="w-50 sm:w-72">{label}</p>
       <p className="hidden sm:block sm:w-10">:</p>
       <div className="flex gap-1 items-center text-right w-full">

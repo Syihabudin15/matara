@@ -1,35 +1,16 @@
 "use client";
 import { useUser } from "@/components/context/UserContext";
-import {
-  IDataPengajuan,
-  IPengajuan,
-  ISimulasi,
-  IUser,
-} from "@/components/IInterface";
+import { IDataPengajuan } from "@/components/IInterface";
+import FileScanner from "@/components/modals/FileScanner";
 import { IDRFormat } from "@/components/utils/Functions";
-import {
-  CheckCircleOutlined,
-  DeleteOutlined,
-  PlusCircleFilled,
-} from "@ant-design/icons";
-import {
-  Button,
-  Input,
-  Modal,
-  Table,
-  TableProps,
-  Tooltip,
-  Typography,
-} from "antd";
+import { PlusCircleFilled } from "@ant-design/icons";
+import { Button, Input, Table, TableProps, Typography } from "antd";
 import moment from "moment";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ModalSimulasi } from "./create";
-import { StatusPengajuan } from "@prisma/client";
-import { FormInput } from "@/components/utils/FormUtils";
 const { Paragraph } = Typography;
 
-export const SimulasiTable = () => {
+export const MonitoringTable = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -44,9 +25,7 @@ export const SimulasiTable = () => {
     await fetch(
       `/api/pengajuan?page=${page}&pageSize=${pageSize}${
         search ? "&search=" + search : ""
-      }&status=SIMULASI${
-        user && user.role === "MOC" ? "&userId=" + user.id : ""
-      }`
+      }${user && user.role === "MOC" ? "&userId=" + user.id : ""}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -297,21 +276,7 @@ export const SimulasiTable = () => {
       render(value, record, index) {
         return (
           <div className="flex gap-2 justify-center">
-            {/* <FileScanner /> */}
-            <Tooltip title="Cek Simulasi">
-              <ModalSimulasi
-                mode="Detail"
-                data={record as unknown as ISimulasi}
-                user={user as IUser}
-                setData={() => {}}
-              />
-            </Tooltip>
-            <Tooltip title="Proses Pengajuan">
-              <ModalProses record={record} getData={getData} />
-            </Tooltip>
-            <Tooltip title="Hapus Pengajuan">
-              <ModalDelete record={record} getData={getData} />
-            </Tooltip>
+            <FileScanner geo filename="KTP" />
           </div>
         );
       },
@@ -322,19 +287,10 @@ export const SimulasiTable = () => {
       title={() => (
         <div>
           <div className="border-b border-blue-500 p-2">
-            <h1 className="font-bold text-xl">Simulasi Kredit</h1>
+            <h1 className="font-bold text-xl">Monitoring Pengajuan</h1>
           </div>
           <div className="flex my-2 gap-2 justify-between">
-            <div>
-              <Button
-                type="primary"
-                size="small"
-                icon={<PlusCircleFilled />}
-                onClick={() => router.push("/simulasi/create")}
-              >
-                New
-              </Button>
-            </div>
+            <div></div>
             <div className="w-42">
               <Input.Search
                 size="small"
@@ -361,192 +317,5 @@ export const SimulasiTable = () => {
         },
       }}
     />
-  );
-};
-
-const ModalDelete = ({
-  record,
-  getData,
-}: {
-  record: IPengajuan;
-  getData: Function;
-}) => {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleDelete = async () => {
-    setLoading(true);
-    await fetch("/api/pengajuan", {
-      method: "PUT",
-      headers: { "Content-type": "Acpplication/json" },
-      body: JSON.stringify({ ...record, isActive: false }),
-    })
-      .then((res) => res.json())
-      .then(async (res) => {
-        if (res.status !== 201) {
-          alert(res.msg);
-        } else {
-          await getData();
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Internal Server Error");
-      });
-    setLoading(false);
-  };
-
-  return (
-    <div>
-      <Button
-        icon={<DeleteOutlined />}
-        type="primary"
-        danger
-        size="small"
-        onClick={() => setOpen(true)}
-      ></Button>
-      <Modal
-        title={`HAPUS SIMULASI ${record.fullname}`}
-        open={open}
-        loading={loading}
-        onCancel={() => setOpen(false)}
-        footer={[
-          <Button
-            key={"CancelDelete"}
-            loading={loading}
-            onClick={() => setOpen(false)}
-          >
-            Cancel
-          </Button>,
-          <Button
-            key={"DeletedSimulation"}
-            danger
-            onClick={() => handleDelete()}
-            loading={loading}
-          >
-            YA
-          </Button>,
-        ]}
-      >
-        <p>Apakah anda yakin ingin menghapus simulasi ini ?</p>
-      </Modal>
-    </div>
-  );
-};
-
-const ModalProses = ({
-  record,
-  getData,
-}: {
-  record: IPengajuan;
-  getData: Function;
-}) => {
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleProses = async () => {
-    setLoading(true);
-    await fetch("/api/pengajuan", {
-      method: "PUT",
-      headers: { "Content-type": "Acpplication/json" },
-      body: JSON.stringify({
-        ...record,
-        status: StatusPengajuan.PROCCESS,
-        desc: "Proses perlengkapan berkas",
-      }),
-    })
-      .then((res) => res.json())
-      .then(async (res) => {
-        if (res.status !== 200) {
-          alert(res.msg);
-        } else {
-          await getData();
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Internal Server Error");
-      });
-    setLoading(false);
-  };
-
-  return (
-    <div>
-      <Button
-        icon={<CheckCircleOutlined />}
-        type="primary"
-        size="small"
-        onClick={() => setOpen(true)}
-      ></Button>
-      <Modal
-        title={`PROSES SIMULASI ${record.fullname}`}
-        open={open}
-        loading={loading}
-        onCancel={() => setOpen(false)}
-        footer={[
-          <Button
-            key={"CancelProses"}
-            loading={loading}
-            onClick={() => setOpen(false)}
-          >
-            Cancel
-          </Button>,
-          <Button
-            key={"ProsesSimulation"}
-            onClick={() => handleProses()}
-            loading={loading}
-            type="primary"
-          >
-            Proses
-          </Button>,
-        ]}
-      >
-        <div className="my-2">
-          <p>
-            Dengan memproses simulasi ini, data akan dibawa ke Monitoring
-            Pembiayaan untuk dilakukan perlengkapan dan validasi berkas.
-          </p>
-          <p> Mohon pastikan data dibawah ini sudah benar!</p>
-        </div>
-        <div className="my-4">
-          <FormInput
-            type="string"
-            label="Nomor Pensiun"
-            defaultValue={record.nopen}
-            onChange={(e: any) => {}}
-            size="small"
-            disabled={true}
-            mode="horizontal"
-          />
-          <FormInput
-            type="string"
-            label="Nama Pemohon"
-            defaultValue={record.fullname}
-            onChange={(e: any) => {}}
-            size="small"
-            disabled={true}
-            mode="horizontal"
-          />
-          <FormInput
-            type="string"
-            label="Plafon"
-            defaultValue={IDRFormat(record.DetailPengajuan.plafon)}
-            onChange={(e: any) => {}}
-            size="small"
-            disabled={true}
-            mode="horizontal"
-          />
-          <FormInput
-            type="string"
-            label="Tenor"
-            defaultValue={record.DetailPengajuan.tenor + " Bulan"}
-            onChange={(e: any) => {}}
-            size="small"
-            disabled={true}
-            mode="horizontal"
-          />
-        </div>
-      </Modal>
-    </div>
   );
 };
